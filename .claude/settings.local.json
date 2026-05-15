@@ -7,7 +7,8 @@
       "PowerShell(node --version 2>&1)",
       "Bash(python -m http.server 8080 --bind 127.0.0.1)",
       "PowerShell($procs = Get-Process -Name python -ErrorAction SilentlyContinue; if \\($procs\\) { $procs | Stop-Process -Force; \"Killed python processes: $\\($procs.Count\\)\" } else { \"No python process found\" })",
-      "Bash(curl -s -o /dev/null -w \"%{http_code} %{content_type} %{size_download}\" http://localhost:8080/maskot_chatbot.png)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{content_type} %{size_download}\" http://localhost:8080/maskot_chatbot.png)",
+      "PowerShell(vercel --version 2>&1)"
     ]
   }
 }

@@ -1,0 +1,142 @@
+/* === AXIOM Portfolio — hero.css === */
+
+#hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg);
+  padding: 0;
+}
+
+/* Layer 2 — AXIOM PNG sequence (BELOW particles) */
+#axiom-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: 0;
+  will-change: opacity;
+  pointer-events: none;
+}
+
+/* Layer 3 — Three.js particles (ABOVE AXIOM so visible over character) */
+#particle-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Layer 4 — UI text */
+.hero-ui {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-top: 80px;
+  pointer-events: none;
+}
+
+.hero-text {
+  max-width: 560px;
+  padding-left: 80px;
+  pointer-events: all;
+}
+
+.hero-pre {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  letter-spacing: 0.3em;
+  margin-bottom: 16px;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.hero-name {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  margin-bottom: 20px;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.hero-tagline {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+  color: var(--color-text-muted);
+  letter-spacing: 0.12em;
+  margin-bottom: 40px;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.hero-cta {
+  display: inline-block;
+  padding: 14px 36px;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.hero-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.12), transparent);
+  transition: left 0.5s ease;
+}
+
+.hero-cta:hover {
+  color: var(--color-bg);
+  background: var(--color-primary);
+  box-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+}
+
+.hero-cta:hover::before {
+  left: 100%;
+}
+
+/* #axiom-sticky — all styles set via JS in axiom.js _getMascotImg() */
+
+@media (max-width: 768px) {
+  .hero-ui { align-items: flex-end; padding-bottom: 48px; padding-top: 80px; }
+  .hero-text {
+    padding-left: 20px;
+    padding-right: 20px;
+    text-align: center;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+  .hero-name { font-size: clamp(1.6rem, 7vw, 2.8rem); }
+  .hero-tagline { font-size: 0.72rem; letter-spacing: 0.06em; }
+  .hero-cta { padding: 12px 28px; font-size: 0.78rem; }
+}
+
+@media (max-width: 480px) {
+  .hero-text { padding-left: 16px; padding-right: 16px; }
+  .hero-name { font-size: clamp(1.4rem, 8vw, 2.2rem); }
+  .hero-tagline { font-size: 0.68rem; }
+}

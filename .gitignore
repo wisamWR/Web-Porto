@@ -1,0 +1,5 @@
+.superpowers/
+.code-review-graph/
+*.local
+.DS_Store
+Thumbs.db

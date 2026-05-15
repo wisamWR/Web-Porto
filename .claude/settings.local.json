@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash \"C:/Users/wisam/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/skills/brainstorming/scripts/start-server.sh\" --project-dir \"c:/Users/wisam/Documents/Project/webPorto-main\")",
+      "PowerShell(netstat -ano)",
+      "PowerShell(python --version 2>&1)",
+      "PowerShell(node --version 2>&1)",
+      "Bash(python -m http.server 8080 --bind 127.0.0.1)",
+      "PowerShell($procs = Get-Process -Name python -ErrorAction SilentlyContinue; if \\($procs\\) { $procs | Stop-Process -Force; \"Killed python processes: $\\($procs.Count\\)\" } else { \"No python process found\" })",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{content_type} %{size_download}\" http://localhost:8080/maskot_chatbot.png)"
+    ]
+  }
+}

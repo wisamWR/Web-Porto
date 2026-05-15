@@ -1,0 +1,46 @@
+/* === AXIOM Portfolio — cursor.css === */
+
+*, *::before, *::after {
+  cursor: none !important;
+}
+
+#cursor-outer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--color-primary);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: border-color 0.3s ease, opacity 0.3s ease;
+  will-change: transform;
+}
+
+#cursor-inner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 100000;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+#cursor-outer.hovering {
+  border-color: var(--color-secondary);
+  opacity: 0.6;
+  /* scale applied via JS to avoid conflicting with lerp transform */
+  width: 64px;
+  height: 64px;
+}
+
+#cursor-inner.hovering {
+  background: var(--color-secondary);
+}

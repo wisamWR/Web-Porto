@@ -12,6 +12,8 @@ let _chatPanel    = null;
 let _chatMessages = null;
 let _chatInput    = null;
 let _chatSend     = null;
+let _chatHistory  = []; // Menyimpan riwayat percakapan untuk memori AI
+
 
 /* ── Build chat panel HTML ────────────────────────────────── */
 function _buildChatPanel() {
@@ -87,11 +89,14 @@ async function _sendToAPI(userMessage) {
   _chatSend.disabled = true;
   _showTyping();
 
+  // Salin riwayat percakapan saat ini sebelum mengirim pesan baru
+  const historyToSend = [..._chatHistory];
+
   try {
     const res = await fetch(AXIOM_API_URL, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ message: userMessage })
+      body:    JSON.stringify({ message: userMessage, history: historyToSend })
     });
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -109,6 +114,16 @@ async function _sendToAPI(userMessage) {
 
     _hideTyping();
     _addMessage(reply, 'axiom');
+
+    // Simpan pesan user dan balasan AI ke riwayat percakapan untuk memori konteks
+    _chatHistory.push({ role: 'user', parts: [{ text: userMessage }] });
+    _chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+
+    // Batasi riwayat maksimal 20 pesan (10 putaran tanya-jawab) agar tidak melebihi kapasitas token
+    if (_chatHistory.length > 20) {
+      _chatHistory.shift();
+      _chatHistory.shift();
+    }
 
   } catch (err) {
     _hideTyping();

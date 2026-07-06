@@ -3,16 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Mohammad Wisam Wiraghina — Computer Vision Engineer, AI Developer, Builder" />
+  <meta name="description" content="Mohammad Wisam Wiraghina — Computer Vision Engineer, AI Developer, Builder. Portofolio project deteksi objek, machine learning, dan pengembangan web full-stack." />
+  <meta name="author" content="Mohammad Wisam Wiraghina" />
+  <meta name="theme-color" content="#050510" />
   <title>AXIOM — Mohammad Wisam Wiraghina</title>
+
+  <!-- Open Graph / social preview -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="AXIOM — Mohammad Wisam Wiraghina" />
+  <meta property="og:description" content="Computer Vision Engineer · AI Developer · Builder. Portofolio interaktif dengan AI chatbot." />
+  <meta property="og:image" content="maskot_chatbot.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="AXIOM — Mohammad Wisam Wiraghina" />
+  <meta name="twitter:description" content="Computer Vision Engineer · AI Developer · Builder" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23050510'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='20' font-weight='bold' fill='%2300F5FF' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
+
+  <!-- Preconnect: font & CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
 
   <link rel="stylesheet" href="assets/css/main.css" />
   <link rel="stylesheet" href="assets/css/cursor.css" />
   <link rel="stylesheet" href="assets/css/hero.css" />
   <link rel="stylesheet" href="assets/css/about.css" />
+  <link rel="stylesheet" href="assets/css/skills.css" />
   <link rel="stylesheet" href="assets/css/projects.css" />
   <link rel="stylesheet" href="assets/css/contact.css" />
   <link rel="stylesheet" href="assets/css/chatbot.css" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Mohammad Wisam Wiraghina",
+    "jobTitle": "Computer Vision & AI Developer",
+    "affiliation": "Universitas Dian Nuswantoro",
+    "email": "mailto:wisamwira27@gmail.com",
+    "sameAs": [
+      "https://github.com/wisamWR",
+      "https://www.linkedin.com/in/wisam-wira/"
+    ]
+  }
+  </script>
 </head>
 <body>
 
@@ -26,6 +62,7 @@
     <ul class="navbar-menu">
       <li><a href="#hero" class="active">HOME</a></li>
       <li><a href="#about">ABOUT</a></li>
+      <li><a href="#skills">SKILLS</a></li>
       <li><a href="#projects">PROJECTS</a></li>
       <li><a href="#contact">CONTACT</a></li>
     </ul>
@@ -40,9 +77,13 @@
   <nav class="navbar-mobile-panel" id="mobile-panel" aria-label="Mobile navigation">
     <a href="#hero">HOME</a>
     <a href="#about">ABOUT</a>
+    <a href="#skills">SKILLS</a>
     <a href="#projects">PROJECTS</a>
     <a href="#contact">CONTACT</a>
   </nav>
+
+  <!-- ── Scroll progress bar ──────────────────────────────── -->
+  <div id="scroll-progress" aria-hidden="true"></div>
 
   <!-- ═══════════════════════════════════════════════════════
        SECTION 1 — HERO
@@ -108,7 +149,18 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════════════
-       SECTION 3 — PROJECTS
+       SECTION 3 — SKILLS
+  ════════════════════════════════════════════════════════ -->
+  <section id="skills" data-section="skills">
+    <div class="container">
+      <p class="section-header reveal">&gt; SCANNING CAPABILITY MATRIX...</p>
+      <!-- Cards grid (populated by skills.js) -->
+      <div class="skills-grid" id="skills-grid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 4 — PROJECTS
   ════════════════════════════════════════════════════════ -->
   <section id="projects" data-section="projects">
     <div class="container">
@@ -176,6 +228,13 @@
     </div>
   </section>
 
+  <!-- ── Back to top ──────────────────────────────────────── -->
+  <button id="back-to-top" aria-label="Kembali ke atas">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
   <!-- axiom-sticky created dynamically by axiom.js -->
 
   <!-- ── CDN Libraries ─────────────────────────────────────── -->
@@ -188,6 +247,7 @@
   <script src="assets/js/particles.js"></script>
   <script src="assets/js/axiom.js"></script>
   <script src="assets/js/about.js"></script>
+  <script src="assets/js/skills.js"></script>
   <script src="assets/js/projects.js"></script>
   <script src="assets/js/chatbot.js"></script>
   <script src="assets/js/main.js"></script>

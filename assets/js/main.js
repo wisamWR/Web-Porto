@@ -58,11 +58,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  /* ── Scroll progress bar + back-to-top ───────────────────── */
+  const progressBar = document.getElementById('scroll-progress');
+  const backToTop   = document.getElementById('back-to-top');
+
+  window.addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    if (progressBar && max > 0) {
+      progressBar.style.width = (window.scrollY / max * 100) + '%';
+    }
+    if (backToTop) {
+      backToTop.classList.toggle('visible', window.scrollY > window.innerHeight * 1.5);
+    }
+  }, { passive: true });
+
+  if (backToTop) {
+    backToTop.addEventListener('click', () =>
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    );
+  }
+
   /* ── Init all modules ────────────────────────────────────── */
   initAxiom();
   initParticles();
   initChatbot();
   if (typeof initAbout    === 'function') initAbout();
+  if (typeof initSkills   === 'function') initSkills();
   if (typeof initProjects === 'function') initProjects();
 
   /* ── Footer year (if present) ────────────────────────────── */

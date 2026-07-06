@@ -3,11 +3,20 @@
 const TOTAL_FRAMES    = 210;
 const HERO_TEXT_FRAME = 180;
 
-const _frames      = [];
+/* Progressive loading: sparse keyframes first (page interactive cepat),
+   sisanya diisi di background. Mobile hanya memuat 1 dari 3 frame. */
+const REDUCED_MOTION  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const IS_MOBILE       = window.innerWidth < 768;
+const PRIORITY_STEP   = 7;                    // ~30 keyframes ≈ 4 MB sebelum unlock
+const BG_STEP         = IS_MOBILE ? 3 : 1;    // mobile skip 2/3 frame (hemat ~18 MB)
+
+const _frames      = new Array(TOTAL_FRAMES).fill(null);
+const _loadedFlags = new Array(TOTAL_FRAMES).fill(false);
 const _axiomCanvas = document.getElementById('axiom-canvas');
 const _axiomCtx    = _axiomCanvas ? _axiomCanvas.getContext('2d') : null;
 
-let _currentFrame  = 0;
+let _currentFrame  = 0;   // frame yang sedang tergambar (selalu frame yang sudah loaded)
+let _targetFrame   = 0;   // frame ideal menurut posisi scroll
 let _textRevealed  = false;
 let _mascotActive  = false;
 let _pinEndScroll  = 4000;
@@ -35,7 +44,7 @@ function _getMascotImg() {
   if (!img) {
     img = document.createElement('img');
     img.id  = 'axiom-sticky';
-    img.src = 'maskot_chatbot.png';
+    img.src = 'assets/img/maskot.webp';
     img.alt = '';
     img.setAttribute('aria-hidden', 'true');
     img.style.cssText = [
@@ -118,33 +127,95 @@ function _unlockScroll() {
   document.body.style.overflow             = '';
 }
 
-/* ── Preload 210 frames (scroll locked during load) ─────── */
+/* ── Frame loading helpers ────────────────────────────────── */
+function _loadFrame(i) {
+  if (_frames[i]) return Promise.resolve(_frames[i]);
+  const img    = new Image();
+  const padded = String(i + 1).padStart(3, '0');
+  img.src      = `assets/frames/ezgif-frame-${padded}.webp`;
+  _frames[i]   = img;
+  return new Promise(res => {
+    img.onload  = () => { _loadedFlags[i] = true; res(img); };
+    img.onerror = () => res(img);
+  });
+}
+
+/* Cari frame terdekat yang sudah loaded (untuk mengisi gap sparse) */
+function _nearestLoadedFrame(f) {
+  if (_loadedFlags[f]) return f;
+  for (let d = 1; d < TOTAL_FRAMES; d++) {
+    if (f - d >= 0            && _loadedFlags[f - d]) return f - d;
+    if (f + d < TOTAL_FRAMES  && _loadedFlags[f + d]) return f + d;
+  }
+  return -1;
+}
+
+/* Gambar frame terbaik yang tersedia untuk posisi scroll saat ini */
+function _drawBestFrame() {
+  const nf = _nearestLoadedFrame(_targetFrame);
+  if (nf !== -1 && nf !== _currentFrame) {
+    _currentFrame = nf;
+    _drawFrame(_frames[nf]);
+  }
+}
+
+/* ── Preload: keyframes dulu, sisanya background ─────────── */
 async function preloadFrames() {
+  /* Reduced motion: tanpa scrub, tampilkan frame akhir + teks langsung */
+  if (REDUCED_MOTION) {
+    await _loadFrame(TOTAL_FRAMES - 1);
+    _currentFrame = _targetFrame = TOTAL_FRAMES - 1;
+    _drawFrame(_frames[_currentFrame]);
+    gsap.set(_axiomCanvas, { opacity: 1 });
+    _pinEndScroll = window.innerHeight;
+    _revealHeroText();
+    _getMascotImg();
+    return;
+  }
+
   _lockScroll();   // prevent scrolling until hero is fully set up
   const ui = _createLoader();
-  let loaded = 0;
 
-  await Promise.all(Array.from({ length: TOTAL_FRAMES }, (_, i) => {
-    const img    = new Image();
-    const padded = String(i + 1).padStart(3, '0');
-    img.src      = `assets/frames/ezgif-frame-${padded}.jpg`;
-    _frames.push(img);
-    return new Promise(res => {
-      img.onload = img.onerror = () => {
-        loaded++;
-        const pct = Math.round(loaded / TOTAL_FRAMES * 100);
-        ui.fill.style.width = pct + '%';
-        ui.lbl.textContent  = `[ LOADING AXIOM — ${pct}% ]`;
-        res();
-      };
-    });
-  }));
+  const priority = [];
+  for (let i = 0; i < TOTAL_FRAMES; i += PRIORITY_STEP) priority.push(i);
+  if (priority[priority.length - 1] !== TOTAL_FRAMES - 1) priority.push(TOTAL_FRAMES - 1);
+
+  let loaded = 0;
+  await Promise.all(priority.map(i => _loadFrame(i).then(() => {
+    loaded++;
+    const pct = Math.round(loaded / priority.length * 100);
+    ui.fill.style.width = pct + '%';
+    ui.lbl.textContent  = `[ LOADING AXIOM — ${pct}% ]`;
+  })));
 
   gsap.to(ui.el, { opacity: 0, duration: 0.4, onComplete: () => ui.el.remove() });
+  /* Fallback: GSAP pakai rAF yang di-suspend saat tab hidden — pastikan loader tetap hilang */
+  setTimeout(() => ui.el.remove(), 1500);
   _drawFrame(_frames[0]);
   gsap.set(_axiomCanvas, { opacity: 1 });
   _setupScrollScrub();
   _unlockScroll(); // unlock after ScrollTrigger is fully configured
+
+  _loadRemainingFrames();
+}
+
+/* Background fill dengan concurrency terbatas agar tidak membanjiri network */
+async function _loadRemainingFrames() {
+  const remaining = [];
+  for (let i = 0; i < TOTAL_FRAMES; i += BG_STEP) {
+    if (!_loadedFlags[i]) remaining.push(i);
+  }
+
+  const CONCURRENCY = 6;
+  let idx = 0;
+  async function worker() {
+    while (idx < remaining.length) {
+      const i = remaining[idx++];
+      await _loadFrame(i);
+      _drawBestFrame(); // upgrade tampilan bila frame baru lebih dekat ke target
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, remaining.length) }, worker));
 }
 
 /* ── Hero text ────────────────────────────────────────────── */
@@ -175,10 +246,10 @@ function _setupScrollScrub() {
     scrub:         1,
     anticipatePin: 1,
     onUpdate: (self) => {
-      const f = Math.round(self.progress * (TOTAL_FRAMES - 1));
-      if (f !== _currentFrame && _frames[f]) { _currentFrame = f; _drawFrame(_frames[f]); }
-      if (f >= HERO_TEXT_FRAME && !_textRevealed) _revealHeroText();
-      if (f <  HERO_TEXT_FRAME &&  _textRevealed) _hideHeroText();
+      _targetFrame = Math.round(self.progress * (TOTAL_FRAMES - 1));
+      _drawBestFrame();
+      if (_targetFrame >= HERO_TEXT_FRAME && !_textRevealed) _revealHeroText();
+      if (_targetFrame <  HERO_TEXT_FRAME &&  _textRevealed) _hideHeroText();
     }
   });
 

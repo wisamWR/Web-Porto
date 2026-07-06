@@ -6,13 +6,31 @@
 const AXIOM_API_URL = "https://axiom-chatbot-proxy.mohwisam27.workers.dev/";
 /* ══════════════════════════════════════════════════════════ */
 
+const CHAT_STORAGE_KEY = 'axiom_chat_history';
+const CHAT_TIMEOUT_MS  = 30000;
+
 let _chatOpen     = false;
 let _chatWaiting  = false;
 let _chatPanel    = null;
 let _chatMessages = null;
 let _chatInput    = null;
 let _chatSend     = null;
-let _chatHistory  = []; // Menyimpan riwayat percakapan untuk memori AI
+let _chatHistory  = _loadHistory(); // Riwayat percakapan — persist di sessionStorage
+
+/* ── History persistence (bertahan selama tab terbuka) ────── */
+function _loadHistory() {
+  try {
+    const raw = sessionStorage.getItem(CHAT_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch { return []; }
+}
+
+function _saveHistory() {
+  try {
+    sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(_chatHistory));
+  } catch { /* storage penuh / private mode — abaikan */ }
+}
 
 
 /* ── Build chat panel HTML ────────────────────────────────── */
@@ -92,11 +110,16 @@ async function _sendToAPI(userMessage) {
   // Salin riwayat percakapan saat ini sebelum mengirim pesan baru
   const historyToSend = [..._chatHistory];
 
+  // Timeout agar UI tidak menggantung bila worker tidak merespons
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), CHAT_TIMEOUT_MS);
+
   try {
     const res = await fetch(AXIOM_API_URL, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ message: userMessage, history: historyToSend })
+      body:    JSON.stringify({ message: userMessage, history: historyToSend }),
+      signal:  controller.signal
     });
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -125,14 +148,18 @@ async function _sendToAPI(userMessage) {
       _chatHistory.shift();
     }
 
+    _saveHistory();
+
   } catch (err) {
     _hideTyping();
     _addMessage(
-      err.message.includes('GANTI_DENGAN')
-        ? '[ API URL belum dikonfigurasi. Isi AXIOM_API_URL di chatbot.js ]'
-        : `[ Error: ${err.message} ]`,
+      err.name === 'AbortError'
+        ? '[ Server tidak merespons. Coba kirim ulang pesanmu. ]'
+        : `[ Koneksi gagal: ${err.message}. Coba lagi. ]`,
       'axiom', true
     );
+  } finally {
+    clearTimeout(timer);
   }
 
   _chatWaiting = false;
@@ -169,10 +196,17 @@ function openChat() {
     /* Close button */
     document.getElementById('chat-close').addEventListener('click', closeChat);
 
-    /* Greeting */
-    setTimeout(() => {
-      _addMessage('Halo! Saya AXIOM. Ada yang ingin kamu tanyakan tentang Wisam?', 'axiom');
-    }, 350);
+    /* Restore riwayat dari sessionStorage, atau greeting bila kosong */
+    if (_chatHistory.length) {
+      _chatHistory.forEach(m => {
+        const text = m?.parts?.[0]?.text;
+        if (text) _addMessage(text, m.role === 'user' ? 'user' : 'axiom');
+      });
+    } else {
+      setTimeout(() => {
+        _addMessage('Halo! Saya AXIOM. Ada yang ingin kamu tanyakan tentang Wisam?', 'axiom');
+      }, 350);
+    }
 
     /* Register cursor hover */
     if (window.addCursorHover) {

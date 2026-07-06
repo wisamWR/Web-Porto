@@ -58,7 +58,8 @@ const projects = [
     description: 'Sistem pengamanan sertifikat tanah dengan Steganografi LSB + Kriptografi. Full-stack Next.js 16, Prisma, PostgreSQL, Supabase. Multi-role system, deployed di Vercel.',
     tags: ['TypeScript', 'Next.js 16', 'Steganografi', 'Prisma', 'PostgreSQL'],
     github: 'https://github.com/wisamWR/Terrafy-Stegano-safety_certificate',
-    demo: null, featured: true
+    demo: 'https://terrafy-stegano-safety-certificate.vercel.app',
+    featured: true
   },
   {
     id: 'dailyin',
@@ -176,10 +177,13 @@ function _renderCards(filter) {
 }
 
 /* ── Modal ────────────────────────────────────────────────── */
+let _lastFocused = null;
+
 function _openModal(p) {
   const overlay = document.getElementById('modal-overlay');
   const content = document.getElementById('modal-content');
   if (!overlay || !content) return;
+  _lastFocused = document.activeElement;
 
   const links = [];
   if (p.github) links.push(`<a href="${p.github}" target="_blank" rel="noopener" class="modal-btn">&#8599; GitHub</a>`);
@@ -202,13 +206,19 @@ function _openModal(p) {
     { scale: 0.88, opacity: 0, y: 20 },
     { scale: 1, opacity: 1, y: 0, duration: 0.35, ease: 'power3.out' }
   );
+
+  const closeBtn = document.getElementById('modal-close');
+  if (closeBtn) closeBtn.focus();
 }
 
 function _closeModal() {
   const overlay = document.getElementById('modal-overlay');
   gsap.to('#project-modal', {
     scale: 0.88, opacity: 0, y: 20, duration: 0.25, ease: 'power2.in',
-    onComplete: () => overlay.classList.remove('open')
+    onComplete: () => {
+      overlay.classList.remove('open');
+      if (_lastFocused?.focus) _lastFocused.focus();
+    }
   });
 }
 

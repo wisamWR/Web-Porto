@@ -1,0 +1,81 @@
+/* === AXIOM Portfolio — skills.css === */
+
+#skills {
+  min-height: auto;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.skill-card {
+  padding: 28px 24px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.skill-card:hover {
+  border-color: rgba(0, 245, 255, 0.45);
+  box-shadow: 0 0 24px rgba(0, 245, 255, 0.15);
+  transform: translateY(-4px);
+}
+
+.skill-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.skill-icon {
+  font-size: 1.3rem;
+  color: var(--color-primary);
+  line-height: 1.2;
+  text-shadow: 0 0 12px rgba(0, 245, 255, 0.6);
+}
+
+.skill-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.skill-desc {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.skill-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-chip {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+  background: rgba(0, 245, 255, 0.06);
+  border: 1px solid rgba(0, 245, 255, 0.22);
+  border-radius: 4px;
+  padding: 4px 10px;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.skill-card:hover .skill-chip {
+  border-color: rgba(0, 245, 255, 0.4);
+}
+
+@media (max-width: 1024px) {
+  .skills-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .skills-grid { grid-template-columns: 1fr; gap: 16px; }
+  .skill-card { padding: 22px 18px; }
+}

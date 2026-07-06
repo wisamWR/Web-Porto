@@ -1,7 +1,18 @@
 /* === AXIOM Portfolio — cursor.css === */
 
-*, *::before, *::after {
-  cursor: none !important;
+/* Custom cursor hanya untuk device dengan pointer presisi (mouse/trackpad).
+   Di touch device: cursor default dibiarkan, elemen neon disembunyikan. */
+@media (hover: hover) and (pointer: fine) {
+  *, *::before, *::after {
+    cursor: none !important;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  #cursor-outer,
+  #cursor-inner {
+    display: none !important;
+  }
 }
 
 #cursor-outer {

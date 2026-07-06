@@ -3,6 +3,7 @@
 function initParticles() {
   const canvas = document.getElementById('particle-canvas');
   if (!canvas || typeof THREE === 'undefined') return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const COUNT = window.innerWidth < 768 ? 1200 : 2500;
 
